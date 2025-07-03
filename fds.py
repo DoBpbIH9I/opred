@@ -23,27 +23,26 @@ def parse_recipes():
             cook_book[meal_name] = cook_lst
         del cook_book["Фахитос"]
     return cook_book
+cook_book = parse_recipes()
 
-
-print(parse_recipes())
+# print(parse_recipes())
 
 def get_shop_list_by_dishes(dishes, person_count):
     """Создает список покупок для блюд по количеству
     персон из перечня рецептов"""
     new_cook = {}
     for dish in dishes:
-        if dish in parse_recipes():
-            for ingredient in parse_recipes()[dish]:
-                ingredient["quantity"] *= person_count
-                new_cook[ingredient["ingredient_name"]] = ingredient
-        else:
-            print(f"Такого блюда как {dish} нет в перечне рецептов.")
-    meal_dict = {}
-    for value in new_cook.values():
-        name = value["ingredient_name"]
-        del value["ingredient_name"]
-        meal_dict[name] = value
-    return meal_dict
+        for ingredient in parse_recipes()[dish]:
+            new_cook2 = {}
+            if ingredient["ingredient_name"] not in new_cook:
+                new_cook2['measure'] = ingredient['measure']
+                new_cook2['quantity'] = ingredient['quantity'] * person_count
+                new_cook[ingredient['ingredient_name']] = new_cook2
+            else:
+                new_cook[ingredient['ingredient_name']]['quantity'] = \
+                    new_cook[ingredient['ingredient_name']]['quantity'] + ingredient['quantity'] * person_count
+
+    return new_cook
 
 pprint(get_shop_list_by_dishes(["Омлет", "Утка по-пекински"], 9))
 
@@ -52,8 +51,8 @@ def strings_count(file):
         return sum(1 for line in f)
 
 base_path = os.getcwd()
-location = os.path.abspath('D:/Python/Dz_opred_shit/sorted')
-file_for_write = os.path.abspath('D:/Python/Dz_opred_shit/sorted/rewrite_file.txt')
+location = os.path.abspath('sorted')
+file_for_write = os.path.abspath('sorted/rewrite_file.txt')
 full_path = os.path.join(base_path, location)
 def rewrite(full_path, file_for_write):
     files = []
@@ -72,4 +71,5 @@ def rewrite(full_path, file_for_write):
         opening_files.close()
 rewrite(full_path, file_for_write)
 
-
+pprint(get_shop_list_by_dishes(['Омлет', 'Омлет'], 2))
+pprint(get_shop_list_by_dishes(['Утка по-пекински', 'Утка по-пекински'], 2))
