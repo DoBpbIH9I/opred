@@ -3,36 +3,26 @@ import os
 import time
 from pprint import pprint
 
-def parse_recipes():
-    """Возвращает словарь с рецептами
-    берущихся из файла перечня recipes.txt"""
-    with open("recipes.txt", encoding="utf-8") as file:
+def bild_cook_book():
+    with open(os.path.join(os.getcwd(), 'recipes.txt'),encoding='utf-8') as file:
         cook_book = {}
-        for line in file.read().split("\n\n"):
-            meal_name, *ingredients = line.split("\n")
-            cook_lst = []
-            for ingredient in ingredients[1:]:
-                ingredient_name, quantity, measure = ingredient.split(" | ")
-                cook_lst.append(
-                    {
-                        "ingredient_name": ingredient_name,
-                        "quantity": int(quantity),
-                        "measure": measure,
-                    }
-                )
-            cook_book[meal_name] = cook_lst
-        del cook_book["Фахитос"]
+        for items in file.read().split('\n\n'):
+            dish, _, *args = items.split('\n')
+            cook_ingr = []
+            for arg in args:
+                ingredient_name, quantity, measure = map(lambda x: int(x) if x.isdigit() else x, arg.split(' | '))
+                cook_ingr.append({'ingredient_name': ingredient_name, 'quantity': quantity, 'measure': measure})
+            cook_book[dish] = cook_ingr
     return cook_book
-cook_book = parse_recipes()
+cook_book = bild_cook_book()
 
-# print(parse_recipes())
 
 def get_shop_list_by_dishes(dishes, person_count):
     """Создает список покупок для блюд по количеству
     персон из перечня рецептов"""
     new_cook = {}
     for dish in dishes:
-        for ingredient in parse_recipes()[dish]:
+        for ingredient in cook_book[dish]:
             new_cook2 = {}
             if ingredient["ingredient_name"] not in new_cook:
                 new_cook2['measure'] = ingredient['measure']
@@ -43,8 +33,6 @@ def get_shop_list_by_dishes(dishes, person_count):
                     new_cook[ingredient['ingredient_name']]['quantity'] + ingredient['quantity'] * person_count
 
     return new_cook
-
-pprint(get_shop_list_by_dishes(["Омлет", "Утка по-пекински"], 9))
 
 def strings_count(file):
     with open(file, 'r', encoding= 'utf-8') as f:
@@ -71,5 +59,5 @@ def rewrite(full_path, file_for_write):
         opening_files.close()
 rewrite(full_path, file_for_write)
 
-pprint(get_shop_list_by_dishes(['Омлет', 'Омлет'], 2))
+pprint(get_shop_list_by_dishes(["Омлет", "Омлет"], 2))
 pprint(get_shop_list_by_dishes(['Утка по-пекински', 'Утка по-пекински'], 2))
